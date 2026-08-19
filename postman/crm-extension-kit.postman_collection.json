@@ -1,0 +1,55 @@
+{
+  "info": {
+    "name": "Zoho CRM Extension Kit",
+    "description": "Sample requests for testing the CRM REST API calls and webhook payloads used by this repo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "api_domain", "value": "https://www.zohoapis.com" },
+    { "key": "access_token", "value": "" },
+    { "key": "webhook_url", "value": "http://localhost:9000" },
+    { "key": "webhook_secret", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Get Deal by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Zoho-oauthtoken {{access_token}}" }
+        ],
+        "url": "{{api_domain}}/crm/v6/Deals/:dealId"
+      }
+    },
+    {
+      "name": "Update Deal (simulate assignment)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Zoho-oauthtoken {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{api_domain}}/crm/v6/Deals/:dealId",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"data\": [ { \"id\": \"{{dealId}}\", \"Payment_Status\": \"Invoiced\" } ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Simulate CRM Deal webhook (Closed Won)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "x-zoho-signature", "value": "{{webhook_secret_hmac}}" }
+        ],
+        "url": "{{webhook_url}}/webhook-function",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"module\": \"Deals\",\n  \"operation\": \"edit\",\n  \"ids\": [\"4876876000000462001\"]\n}"
+        }
+      }
+    }
+  ]
+}

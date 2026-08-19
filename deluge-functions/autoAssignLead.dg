@@ -1,0 +1,36 @@
+// Custom Function attached to a Workflow Rule: "On Create" for the Leads module.
+// Assigns the new Lead to an owner using simple round-robin by territory,
+// stored in a small Leads_Assignment_Config CRM custom module.
+
+response = Map();
+
+leadId = leadId;   // arg configured on the workflow rule mapping (Lead ID)
+territory = ifnull(input.territory, "Unassigned");
+
+configRecords = zoho.crm.searchRecords("Leads_Assignment_Config", "(Territory:equals:" + territory + ")");
+
+if (configRecords.size() == 0)
+{
+	info "No assignment config for territory: " + territory;
+	return response;
+}
+
+config = configRecords.get(0);
+ownerList = config.get("Round_Robin_Owners"); // multi-select lookup, list of user IDs
+lastIndex = ifnull(config.get("Last_Assigned_Index"), -1).toLong();
+
+nextIndex = (lastIndex + 1) % ownerList.size();
+nextOwnerId = ownerList.get(nextIndex);
+
+updateMap = Map();
+updateMap.put("Owner", nextOwnerId);
+updateResponse = zoho.crm.updateRecord("Leads", leadId, updateMap);
+
+configUpdateMap = Map();
+configUpdateMap.put("Last_Assigned_Index", nextIndex);
+zoho.crm.updateRecord("Leads_Assignment_Config", config.get("id"), configUpdateMap);
+
+info "Assigned Lead " + leadId + " to owner " + nextOwnerId + " (territory: " + territory + ")";
+
+response.put("assignedOwner", nextOwnerId);
+return response;

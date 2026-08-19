@@ -1,0 +1,25 @@
+// Custom Function attached to a Workflow Rule: "On Edit" for Deals,
+// with the condition Stage = "Closed Won". Posts a notification to Zoho
+// Cliq so the sales team sees it immediately, independent of whatever
+// external system the webhook-function/ forwards the event to.
+
+dealId = dealId; // arg mapped to the Deal ID from the workflow rule
+
+dealMap = zoho.crm.getRecordById("Deals", dealId);
+dealName = dealMap.get("Deal_Name");
+amount = ifnull(dealMap.get("Amount"), 0);
+ownerName = dealMap.get("Owner").get("name");
+
+message = ownerName + " just closed **" + dealName + "** for $" + amount + " 🎉";
+
+cliqResponse = invokeurl
+[
+	url: "https://cliq.zoho.com/api/v2/channelsbyname/sales-wins/message"
+	type: POST
+	parameters: {"text": message}.toString()
+	connection: "cliq_bot_connection"
+];
+
+info "Cliq notification result: " + cliqResponse;
+
+return cliqResponse;

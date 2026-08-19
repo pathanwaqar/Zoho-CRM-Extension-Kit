@@ -1,0 +1,10 @@
+{
+  "functions": [
+    {
+      "name": "crmWebhookReceiver",
+      "source": "webhook-function",
+      "type": "advancedio",
+      "stack": "node18"
+    }
+  ]
+}
