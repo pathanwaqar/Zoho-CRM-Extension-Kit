@@ -120,7 +120,7 @@ zoho-crm-extension-kit/
 - [ ] Migrate Deluge functions to Node-based Catalyst Functions for parity
 - [ ] Add signature verification middleware for the webhook receiver
 
----
+----
 
 ## Author
 
